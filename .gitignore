@@ -1,0 +1,12 @@
+dist
+build
+*.egg-info
+
+__pycache__
+
+venv
+TODO
+dev.py
+
+# temp
+docs
