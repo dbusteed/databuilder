@@ -1,5 +1,11 @@
 # DataBuilder
 
+Have you ever needed some dummy data to demonstrate some basic data analysis / machine learning topics?
+
+DataBuilder can save you time by creating custom data sets within minutes.
+
+<br>
+
 ## Installation
 
 ```
@@ -8,7 +14,7 @@ pip install databuilder
 
 <br>
 
-## Basic Usage
+## Quick Example
 
 ```python
 import databuilder as db
@@ -25,27 +31,22 @@ config = {
     }
 }
 
-# create a Pandas DataFrame object with 
-# 200 rows and the fields defined in `config`
+# create a Pandas DataFrame with 
+# the fields defined in `config`
 df = db.create_df(config, n=200)
 
 print(df.head(2))
-# Example output:
-#       empID first_name last_name department  salary  hire_date
-#    0      1      Frank      Ward         IT   69210 2004-05-05
-#    1      2    Barbara    George       Mktg   46744 2019-05-20
+#
+#   Example output:
+#         empID first_name last_name department  salary  hire_date
+#      0      1      Frank      Ward         IT   69210 2004-05-05
+#      1      2    Barbara    George       Mktg   46744 2019-05-20
 ```
 
 <br>
 
-## MORE COMING SOON
+## Complete Usage Guide
 
-<!-- ## API
+Coming Soon!
 
-### Fields
-
-Quick ref
-* see this README for more info
-* use the built-in help
-
-### Options -->
+<!-- Detailed docs on how to use DataBuilder can be found in the `docs/` folder of this repo (or [click here](https://github.com/dbusteed/databuilder/blob/master/docs/README.md)) -->
