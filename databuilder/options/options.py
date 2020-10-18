@@ -9,19 +9,22 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 
 def _transform_sd(xs, sd):
-    '''
-    transforms a vector with a stdev of 1 to
+    """
+    Transforms a vector with a stdev of 1 to
     a newly specified stdev.
-    '''
+    """
     
     x_bar = st.mean(xs)
     z_scores = [(x-x_bar) for x in xs]
     new_xs = [((z*sd) + x_bar) for z in z_scores]
 
-    return new_xs  
+    return new_xs
 
 
 def _random_cov_matrix(n):
+    """
+    Generates random correlation matrix (n x n)
+    """
 
     mat = []
     for _ in range(n):
@@ -39,12 +42,34 @@ def _random_cov_matrix(n):
 
 
 class ExplicitCorrelation():
+    """
+    One possible option value for the "correlation"
+    option that can be defined in ther `databuilder.create_df`
+    configuration dictionary
+
+    This option alters columns in the dataframe so that
+    they loosly fit an explicit correlation matrix
+    """
     
     def __init__(self, columns, matrix):
+        """
+        Create an instance of the ExplicitCorrelation class
+
+        Params:
+            columns: List of columns (as strings) that the correlation
+                     will be applied to. NOTE: The order of this list
+                     needs to match the values provided in the `matrix` param
+            matrix: The correlation matrix for the columns given in the
+                    `columns` param. This matrix should be N x N, where N
+                    is the len(columns)
+        """
         self.columns = columns
         self.matrix = matrix
 
-    def apply_correlation(self, df, fields, n):
+    def _apply_correlation(self, df, fields, n):
+        """
+        Applies correlation adjustment to the required fields
+        """
             
         # these checks could happen somewhere else too maybe
         means = []
@@ -64,12 +89,30 @@ class ExplicitCorrelation():
 
 
 class RandomCorrelation():
+    """
+    One possible option value for the "correlation"
+    option that can be defined in ther `databuilder.create_df`
+    configuration dictionary
+
+    This option alters columns in the dataframe so that the
+    provided columns have a random correlation between them
+    """
     
     def __init__(self, columns):
+        """
+        Create an instance of the RandomCorrelation class
+
+        Params:
+            columns: List of columns (as strings) that the random
+                     correlation will be applied to
+        """
         self.columns = columns
 
-    def apply_correlation(self, df, fields, n):
-        
+    def _apply_correlation(self, df, fields, n):
+        """
+        Applies correlation adjustment to the required fields
+        """
+
         # these checks could happen somewhere else too maybe
         means = []
         for f in fields.values():

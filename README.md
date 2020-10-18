@@ -2,7 +2,7 @@
 
 Have you ever needed some dummy data to demonstrate some basic data analysis / machine learning topics?
 
-DataBuilder can save you time by creating custom data sets within minutes.
+DataBuilder can save you time by creating customized dummy data sets within minutes.
 
 <br>
 
@@ -47,6 +47,4 @@ print(df.head(2))
 
 ## Complete Usage Guide
 
-Coming Soon!
-
-<!-- Detailed docs on how to use DataBuilder can be found in the `docs/` folder of this repo (or [click here](https://github.com/dbusteed/databuilder/blob/master/docs/README.md)) -->
+Detailed docs on how to use DataBuilder can be found in the `docs/` folder of this repo (or [click here](https://github.com/dbusteed/databuilder/blob/master/docs/README.md))

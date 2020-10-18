@@ -5,8 +5,8 @@ with open("README.md", "r") as f:
 
 setup(
     name="databuilder",
-    version="0.0.1",
-    description="make fake data quick",
+    version="0.0.2",
+    description="a tool for quickly generating dummy data",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/dbusteed/databuilder",

@@ -6,8 +6,6 @@ from numpy.random import normal, rand
 # part of the Standard Library
 from datetime import datetime, timedelta, time, date
 from random import choice, randint
-from string import ascii_lowercase
-from re import split as re_split
 from uuid import uuid4
 
 
@@ -18,6 +16,10 @@ from uuid import uuid4
 #------------------------#
 
 class _Numeric():
+    """
+    Abstract class extended by UniformDist and NormalDist
+    """
+    
     def __init__(self, precision=0):
         self.precision = precision
 
@@ -29,16 +31,38 @@ class _Numeric():
 #-------------------#
 
 class UniformDist(_Numeric):
+    """
+    A field type to be used in the "fields" configuration
 
-    # TODO not a perfect uniform dist
-    # IN PROGRESS
+    This field creates a series of numbers with a uniform distribution
+    """
+
+    # TODO there's an issue where a uniform
+    # distribution isn't always created, but rather
+    # the first group is low and the last is high
 
     def __init__(self, low, high, precision=None):
+        """
+        Create instance of UniformDist field type
+
+        Required params:
+            low: Inclusive lower bound of the uniform distribution
+            high: Inclusive upper bound of the uniform distribution
+            
+        Optional params:
+            precision: Number of decimal places. Defaults to None, which
+                       results in an integer
+        """
+        
         super().__init__(precision)
         self.low = low
         self.high = high
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         return [
             round((rand() * (self.high - self.low) + self.low), self.precision)
             for _ in range(n)
@@ -46,14 +70,37 @@ class UniformDist(_Numeric):
 
 
 class NormalDist(_Numeric):
-    
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of numbers with a normal distribution
+    """
+
     def __init__(self, mean, sd, bounds=None, precision=None):
+        """
+        Create instance of NormalDist field type
+
+        Required params:
+            mean: Mean of the normal distribution
+            sd: Standard Deviation of the normal distribution
+            
+        Optional params:
+            bounds: Tuple containing the lower and upper bounds of the distribution.
+                    Defaults to None
+            precision: Number of decimal places. Defaults to None, which
+                       results in an integer
+        """
+
         super().__init__(precision)
         self.mean = mean
         self.sd = sd
         self.bounds = bounds
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         if self.bounds:
             low, high = self.bounds
             out_of_bound = low-1
@@ -79,15 +126,37 @@ class NormalDist(_Numeric):
 #----------------#
 
 class Name():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of names
+    """
     
     def __init__(self, first_only=False, last_only=False, brule=False, depends_on=None):
+        """
+        Create instance of Name field type
+
+        Optional params:
+            first_only: Boolean indicating whether or not to return just a first name.
+                        Defaults to False
+            last_only: Boolean indicating whether or not to return just a last name.
+                       Defaults to False
+            brule: Boolean indicated whether or not to return a "Brule-ized" name.
+                   Defaults to False
+            depends_on: Column name of a gender field (if applicable), so that random
+                        names match up with random genders
+        """
+        
         self.first_only = first_only
         self.last_only = last_only
         self.brule = brule
         self.depends_on = depends_on
 
 
-    def to_series(self, n, dep_series=None):
+    def _to_series(self, n, dep_series=None):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
 
         # choose which functions to use
         if self.brule:        
@@ -117,11 +186,26 @@ class Name():
 
 
 class Group():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of different groups / classes
+    """
 
     def __init__(self, groups):
+        """
+        Create instance of Name field type
+
+        Required params:
+            groups: List of groups (with the option of providing discrete probabilites)
+        """
+
         self.groups = groups
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
         
         # check if custom probabilites were provided
         if isinstance(self.groups[0], (list, tuple)):
@@ -145,24 +229,57 @@ class Group():
 
 
 class Custom():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series based on a custom function
+    """
 
     def __init__(self, base, func):
+        """
+        Create instance of Custom field type
+
+        Required params:
+            base: Name of column which this function is applied to
+            func: Function to be applied
+        """
+
         if not hasattr(func, '__call__'):
             raise TypeError('`func` must be a function')
         
         self.base = base
         self.func = func
 
-    def to_series(self, base_series):
+    def _to_series(self, base_series):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         return base_series.apply(self.func)
 
 
 class Constant():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a constant value
+    """
 
     def __init__(self, value):
+        """
+        Create instance of Constant field type
+
+        Required params:
+            value: Constant value to be returned
+        """
+
         self.value = value
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         return [self.value for _ in range(n)]
 
 
@@ -173,8 +290,20 @@ class Constant():
 #--------------------#
 
 class Date():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a dates 
+    """
     
     def __init__(self, start, end):
+        """
+        Create instance of Date field type
+
+        Required params:
+            start: Start of date range
+            end: End of date range
+        """
 
         # clean args
         if not isinstance(start, (date, datetime)):
@@ -197,6 +326,10 @@ class Date():
 
 
     def _parse_date(self, date_string):
+        """
+        Parse date string into datetime.date
+        """
+
         parts = re_split(r'(-|/|\.|\s)', date_string)
         parts = [p for p in parts if p not in ('-', '/', ':', ' ', '.')]
 
@@ -207,14 +340,34 @@ class Date():
             raise ValueError(f"Unable to parse date: {date_string}")
 
     
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         diff = self.end - self.start
         return [self.start + timedelta(days=randint(0, diff.days)) for _ in range(n)]
 
 
 class DateTime():
-    
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a datetimes
+    """
+
     def __init__(self, start, end, unix=False):
+        """
+        Create instance of DateTime field type
+
+        Required params:
+            start: Start of datetime range
+            end: End of datetime range
+
+        Optional params:
+            unix: Boolean of whether or not to return as UNIX timestamp.
+                  Defaults to False
+        """
         
         if not isinstance(start, datetime):
             try:
@@ -237,6 +390,10 @@ class DateTime():
 
 
     def _parse_date(self, date_string):
+        """
+        Parse datetime string into datetime.datetime
+        """
+
         parts = re_split(r'(-|/|:|\.|\s)', date_string)
         parts = [p for p in parts if p not in ('-', '/', ':', ' ', '.')]
 
@@ -249,7 +406,11 @@ class DateTime():
             raise TypeError(f"Unable to parse date: {date_string}")
 
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         diff = self.end - self.start
         if self.unix:
             return [int((self.start + timedelta(seconds=randint(0, diff.total_seconds()))).timestamp()) for _ in range(n)]
@@ -258,8 +419,20 @@ class DateTime():
 
 
 class Time():
-    
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a times
+    """
+
     def __init__(self, start, end):
+        """
+        Create instance of Time field type
+
+        Required params:
+            start: Start of time range
+            end: End of time range
+        """
         
         if not isinstance(start, time):
             try:
@@ -281,6 +454,10 @@ class Time():
 
 
     def _parse_time(self, time_string):
+        """
+        Parse time string into datetime.time
+        """
+
         parts = re_split(r'(-|/|:|\.|\s)', time_string)
         parts = [p for p in parts if p not in ('-', '/', ':', ' ', '.')]
 
@@ -291,7 +468,11 @@ class Time():
             raise TypeError(f"Unable to parse time: {time_string}")
 
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         form = '%H:%M:%S'
         d1 = datetime.strptime(self.start.strftime(form), form)
         d2 = datetime.strptime(self.end.strftime(form), form)
@@ -309,23 +490,57 @@ class Time():
 #--------------#
 
 class ID():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a IDs
+    """
 
     def __init__(self, start=1):
+        """
+        Create instance of ID field type
+
+        Optional params:
+            start: Starting value for the ID, incremented by 1 after that point.
+                   Defaults to 1
+        """
+
         try:
             self.start = int(start)
         except:
             raise TypeError('`start` needs to be of type `int`')
         
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         return [x for x in range(self.start, n+self.start)]
 
 
 class GUID():
+    """
+    A field type to be used in the "fields" configuration
+
+    This field creates a series of a GUIDs
+    """
 
     def __init__(self, format="str"):
+        """
+        Create instance of GUID field type
+
+        Optional params:
+            format: Format type for the GUID. Can be "str", "int", or "hex"
+                    Defaults to str
+        """
+
         self.format = format
 
-    def to_series(self, n):
+    def _to_series(self, n):
+        """
+        Return a list of length `n` in accordance with this field type
+        """
+
         if self.format == "hex":
             return [uuid4().hex for _ in range(n)]
         elif self.format == "int":

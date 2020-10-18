@@ -2,6 +2,18 @@ from pandas import DataFrame
 
 
 def create_df(config, n):
+    """
+    Create a Pandas DataFrame.
+
+    Params:
+        config: A dictionary containing fields and
+                options for making the DataFrame
+                (see docs for examples)
+        n: Number of rows in the DataFrame
+
+    Returns:
+        Pandas DataFrame
+    """
     
     fields = config.get('fields', None)
     options = config.get("options", {})
@@ -17,25 +29,25 @@ def create_df(config, n):
         
         if field.__class__.__qualname__ == 'Custom':
             try:
-                df[column_name] = field.to_series(df[field.base])
+                df[column_name] = field._to_series(df[field.base])
             except KeyError:
                 raise ValueError(f"Custom field's `{field.base}` was not found")
         
         elif hasattr(field, 'depends_on') and field.depends_on:
             try:
-                df[column_name] = field.to_series(n, df[field.depends_on])
+                df[column_name] = field._to_series(n, df[field.depends_on])
             except:
                 raise ValueError(f"Name field's `{field.depends_on}` was not found")
         
         else:
-            df[column_name] = field.to_series(n)
+            df[column_name] = field._to_series(n)
 
-    # handle coreelation
+    # handle options
     if 'correlation' in options:
 
         corr = options['correlation']
 
         fs = {k:v for k,v in fields.items() if k in corr.columns}
-        df = corr.apply_correlation(df, fs, n)
+        df = corr._apply_correlation(df, fs, n)
 
     return df
